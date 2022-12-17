@@ -20,14 +20,14 @@ public class RequestConsumer {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    @RabbitListener(queues = {"subscriptionQueue"})
+    @RabbitListener(queues = {"ZongChargingQueue"})
     public void receive(String msg) {
 
         try {
             CustomMessage customMessage = objectMapper.readValue(msg, CustomMessage.class);
             RequestEvent event = new RequestEvent(this, customMessage);
             applicationEventPublisher.publishEvent(event);
-            log.info("CONSUMER SERVICE | REQUESTCONSUMER CLASS | EVENT PUBLISHED FOR MSISDN | "+ event.getMessage().getMsisdn());
+            log.info("ZONG CONSUMER SERVICE  | REQUESTCONSUMER CLASS | EVENT PUBLISHED FOR MSISDN | "+ event.getMessage().getMsisdn());
         } catch (Exception e) {
             e.printStackTrace();
         }

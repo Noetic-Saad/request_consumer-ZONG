@@ -68,26 +68,26 @@ public class AutLogInHandler implements RequestEventHandler {
         }
         UsersStatusEntity statusEntity = null;
         if (usersEntity.getUserStatusId() == null) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             return;
         }
         statusEntity = userStatusRepository.findTopById(usersEntity.getUserStatusId());
         System.out.println(statusEntity.getStatusId());
         if (statusEntity == null || statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.RENEWALUNSUB)) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID), ResponseTypeConstants.INVALID, requestProperties.getCorrelationId());
         } else if (statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.BLOCKED)) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCOKED");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCOKED");
 
             createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID), ResponseTypeConstants.INVALID, requestProperties.getCorrelationId());
         } else if (statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)
                 && statusEntity.getExpiryDatetime().toLocalDateTime().isAfter(LocalDateTime.now())) {
             System.out.println(statusEntity.getStatusId());
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS VALID USER");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS VALID USER");
             createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.VALID), ResponseTypeConstants.VALID, requestProperties.getCorrelationId());
             saveLogInRecord(requestProperties, usersEntity.getVendorPlanId());
         } else {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID), ResponseTypeConstants.INVALID, requestProperties.getCorrelationId());
         }
     }
@@ -124,12 +124,12 @@ public class AutLogInHandler implements RequestEventHandler {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        log.info("CONSUMER SERVICE | AUTOLOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+        log.info("ZONG CONSUMER SERVICE  | AUTOLOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
     }
 
     private void saveLogInRecord(RequestProperties requestProperties, long vendorPlanId) {
-        log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | AUTO_LOGIN | SESSION ID" + requestProperties.getSessionId());
-        log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | AUTO_LOGIN | SESSION ID" + requestProperties.getRemoteServerIp());
+        log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | AUTO_LOGIN | SESSION ID" + requestProperties.getSessionId());
+        log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | AUTO_LOGIN | SESSION ID" + requestProperties.getRemoteServerIp());
         LoginRecordsEntity loginRecordsEntity = new LoginRecordsEntity();
         loginRecordsEntity.setCtime(Timestamp.valueOf(LocalDateTime.now()));
         loginRecordsEntity.setSessionId(requestProperties.getSessionId());

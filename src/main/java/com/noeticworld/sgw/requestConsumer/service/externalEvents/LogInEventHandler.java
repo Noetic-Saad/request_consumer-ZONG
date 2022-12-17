@@ -132,26 +132,26 @@ public class LogInEventHandler implements RequestEventHandler {
         }
         UsersStatusEntity statusEntity = null;
         if (usersEntity.getUserStatusId() == null) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             subscriptionEventHandler.handleSubRequest(requestProperties);
             return;
         }
         statusEntity = userStatusRepository.findTopById(usersEntity.getUserStatusId());
         if (statusEntity == null || statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.RENEWALUNSUB)) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             subscriptionEventHandler.handleSubRequest(requestProperties);
         } else if (statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.BLOCKED)) {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCOKED");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCOKED");
             createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID), ResponseTypeConstants.INVALID, requestProperties.getCorrelationId());
         } else if (statusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)
                 && statusEntity.getExpiryDatetime().toLocalDateTime().isAfter(LocalDateTime.now())) {
             log.info("********User Status Id : " + statusEntity.getId() + " User Status" + statusEntity.getStatusId() + " Expired At" + statusEntity.getExpiryDatetime());
 
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS VALID USER");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS VALID USER");
             createResponse("Valid User", ResponseTypeConstants.VALID, requestProperties.getCorrelationId());
             saveLogInRecord(requestProperties, usersEntity.getVendorPlanId());
         } else {
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | FOR MSISDN " + requestProperties.getMsisdn() + " SENDING SUB REQUEST");
             subscriptionEventHandler.handleSubRequest(requestProperties);
         }
     }
@@ -195,7 +195,7 @@ public class LogInEventHandler implements RequestEventHandler {
             requestRepository.save(entity);
             ObjectMapper objectMapper = new ObjectMapper();
             redisRepository.saveVendorRequest(entity.getCorrelationid(), objectMapper.writeValueAsString(entity.toString()));
-            log.info("CONSUMER SERVICE | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
         } catch (Exception ex) {
             log.error("Error In Creating Response" + ex);
         }

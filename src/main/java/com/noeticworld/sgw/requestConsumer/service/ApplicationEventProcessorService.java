@@ -20,7 +20,7 @@ public class ApplicationEventProcessorService implements ApplicationListener<Req
 
     @Override
     public void onApplicationEvent(RequestEvent requestEvent) {
-        log.info("CONSUMER SERVICE | APPLICATIONEVENTPROCESSOR SERVICE CLASS | EVENT PUBLISHED FOR MSISDN | "+ requestEvent .getMessage().getMsisdn());
+        log.info("ZONG CONSUMER SERVICE  | APPLICATIONEVENTPROCESSOR SERVICE CLASS | EVENT PUBLISHED FOR MSISDN | "+ requestEvent .getMessage().getMsisdn());
         CustomMessage customMessage = requestEvent.getMessage();
         try {
             requestProcessorService.process(customMessage);

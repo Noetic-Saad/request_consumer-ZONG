@@ -10,18 +10,11 @@ import com.noeticworld.sgw.requestConsumer.service.ConfigurationDataManagerServi
 import com.noeticworld.sgw.requestConsumer.service.MtService;
 import com.noeticworld.sgw.requestConsumer.service.VendorPostBackService;
 import com.noeticworld.sgw.util.*;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -74,26 +67,26 @@ public class SubscriptionEventHandler implements RequestEventHandler {
         if (requestProperties.isOtp()) {
             if (requestProperties.getOtpNumber() == 0) {
                 createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID_OTP), ResponseTypeConstants.INVALID_OTP, requestProperties.getCorrelationId());
-                log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | OTP IS INVALID FOR | " + requestProperties.getMsisdn());
+                log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | OTP IS INVALID FOR | " + requestProperties.getMsisdn());
                 return;
             }
             VendorPlansEntity vendorPlansEntity = dataManagerService.getVendorPlans(requestProperties.getVendorPlanId());
 
-            if(vendorPlansEntity.getOperatorId()==1){
-                //new jazz api
-               String msg= verifyOTP(requestProperties.getMsisdn(),requestProperties.getOtpNumber());
-                if(msg.equals("success")){
-                    loginRepository.updateLoginTable(requestProperties.getMsisdn());
-                    handleSubRequest(requestProperties);
-                }
-                else{
-                    createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID_OTP), ResponseTypeConstants.INVALID_OTP, requestProperties.getCorrelationId());
-
-                }
-
-            }
+//            if(vendorPlansEntity.getOperatorId()==1){
+//                //new jazz api
+//               String msg= verifyOTP(requestProperties.getMsisdn(),requestProperties.getOtpNumber());
+//                if(msg.equals("success")){
+//                    loginRepository.updateLoginTable(requestProperties.getMsisdn());
+//                    handleSubRequest(requestProperties);
+//                }
+//                else{
+//                    createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID_OTP), ResponseTypeConstants.INVALID_OTP, requestProperties.getCorrelationId());
+//
+//                }
+//
+//            }
             //else1 start
-            else{
+            if(vendorPlansEntity.getOperatorId()==4){
 
             //OtpRecordsEntity otpRecordsEntity = otpRecordRepository.findtoprecord(requestProperties.getMsisdn());
             OtpRecordsEntity otpRecordsEntity = getTopOtpRecordFromMsidn(requestProperties.getMsisdn());
@@ -103,7 +96,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
                 loginRepository.updateLoginTable(requestProperties.getMsisdn());
                 handleSubRequest(requestProperties);
             } else {
-                log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | OTP IS INVALID FOR | " + requestProperties.getMsisdn());
+                log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | OTP IS INVALID FOR | " + requestProperties.getMsisdn());
                 createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.INVALID_OTP), ResponseTypeConstants.INVALID_OTP, requestProperties.getCorrelationId());
             }
            //else1 end
@@ -144,7 +137,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             else  if(response!=null && response.getBody().getCode()==1000){
                 log.info("Jazz Customer from checkbalancedate api"+ response.getBody().getCode() +response.getBody().getMsg());
              entity = dataService.getVendorPlans(requestProperties.getVendorPlanId());
-             log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | REGISTRING NEW USER "+requestProperties.getVendorPlanId());
+             log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | REGISTRING NEW USER "+requestProperties.getVendorPlanId());
              _user = registerNewUser(requestProperties,entity);
              if(requestProperties.getVendorPlanId()==3 ||requestProperties.getVendorPlanId()==12 ||requestProperties.getVendorPlanId()==16) {
 
@@ -190,7 +183,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             if(_usersStatusEntity == null){
                 processUserRequest(requestProperties, _user);
             }else if (_usersStatusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.BLOCKED)) {
-                log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCKED OR BLACKLISTED");
+                log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCKED OR BLACKLISTED");
                 createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.USER_IS_BLOCKED), ResponseTypeConstants.USER_IS_BLOCKED, requestProperties.getCorrelationId());
             } else {
                 if (_usersStatusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)) {
@@ -201,7 +194,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
                                     before(new Timestamp(System.currentTimeMillis()))) {
                         processUserRequest(requestProperties, _user);
                     } else {
-                        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS ALREADY SUBSCRIBED");
+                        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS ALREADY SUBSCRIBED");
                         createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.ALREADY_SUBSCRIBED), ResponseTypeConstants.ALREADY_SUBSCRIBED, requestProperties.getCorrelationId());
                     }
                 }else {
@@ -220,7 +213,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
         if (_user == null) {
             exisingUser = false;
             entity = dataService.getVendorPlans(requestProperties.getVendorPlanId());
-            log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | REGISTRING NEW USER");
+            log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | REGISTRING NEW USER");
             _user = registerNewUser(requestProperties, entity);
 
         }
@@ -230,7 +223,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             if (_usersStatusEntity == null) {
                 processUserRequest(requestProperties, _user);
             } else if (_usersStatusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.BLOCKED)) {
-                log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCKED OR BLACKLISTED");
+                log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS BLOCKED OR BLACKLISTED");
                 createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.USER_IS_BLOCKED), ResponseTypeConstants.USER_IS_BLOCKED, requestProperties.getCorrelationId());
             } else {
                 if (_usersStatusEntity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)) {
@@ -241,7 +234,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
                                     before(new Timestamp(System.currentTimeMillis()))) {
                         processUserRequest(requestProperties, _user);
                     } else {
-                        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS ALREADY SUBSCRIBED");
+                        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | MSISDN " + requestProperties.getMsisdn() + " IS ALREADY SUBSCRIBED");
                         createResponse(dataService.getResultStatusDescription(ResponseTypeConstants.ALREADY_SUBSCRIBED), ResponseTypeConstants.ALREADY_SUBSCRIBED, requestProperties.getCorrelationId());
                     }
                 } else {
@@ -286,13 +279,15 @@ public class SubscriptionEventHandler implements RequestEventHandler {
         int minutes = Integer.parseInt(expiryTime[1]);
 
         usersStatusEntity.setSubCycleId(entity.getSubCycle());
-        if (entity.getSubCycle() == 1) {
-            usersStatusEntity.setExpiryDatetime(Timestamp.valueOf(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(hours, minutes))));
-        } else {
-            if (isZongFreeTrialUser) {
-                // If this is a zong free trial user, give one day free trial and if gets charged, give 7 day subscription.
-                usersStatusEntity.setExpiryDatetime(Timestamp.valueOf(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(hours, minutes))));
-            } else {
+//        if (entity.getSubCycle() == 1) {
+//            usersStatusEntity.setExpiryDatetime(Timestamp.valueOf(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(hours, minutes))));
+//        }
+        if (entity.getSubCycle() == 7) {
+//            if (isZongFreeTrialUser) {
+//                // If this is a zong free trial user, give one day free trial and if gets charged, give 7 day subscription.
+//                usersStatusEntity.setExpiryDatetime(Timestamp.valueOf(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(hours, minutes))));
+//            }
+            if((!isZongFreeTrialUser)) {
                 usersStatusEntity.setExpiryDatetime(Timestamp.valueOf(LocalDateTime.of(LocalDate.now().plusDays(7), LocalTime.of(hours, minutes))));
             }
 
@@ -305,7 +300,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
 
         userStatusRepository.flush();
 
-        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | " + requestProperties.getMsisdn() + " " +
+        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + requestProperties.getMsisdn() + " " +
                 "| USER STATUS CREATED");
         return usersStatusEntity;
     }
@@ -344,10 +339,11 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             // ALREADY SUBSCRIBED CASE
             String responseTypeConstant = null;
 
-            if (vendorPlansEntity.getOperatorId() == 1) {
-                // Create already subscribed response | game now.
-                responseTypeConstant = ResponseTypeConstants.ALREADY_SUBSCRIBED;
-            } else if (vendorPlansEntity.getOperatorId() == 4) {
+//            if (vendorPlansEntity.getOperatorId() == 1) {
+//                // Create already subscribed response | game now.
+//                responseTypeConstant = ResponseTypeConstants.ALREADY_SUBSCRIBED;
+//            } else
+                if (vendorPlansEntity.getOperatorId() == 4) {
                 // Create valid response | zong games.
                 responseTypeConstant = ResponseTypeConstants.VALID;
             }
@@ -372,19 +368,20 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             }
 
             // Handle Jazz Game now and Zong gamez in different statements.
-            if (vendorPlansEntity.getOperatorId() == 1) {
-                // Jazz | Game now
-                message = dataManagerService.getMtMessage("jazz_sub").getMsgText();
-
-                // This check was added for the following use case :: If an already subscribed user in the past 30/45 days logs
-                // in, he should not receive subscription MT. It is make sure by status id 8, which means that the user is
-                // already in subscription renewal.
-                if (lastUserStatus != null && lastUserStatus.getStatusId() == 8) {
-                    isMtAllowed = false;
-                } else {
-                    isMtAllowed = true;
-                }
-            } else if (vendorPlansEntity.getOperatorId() == 4) {
+//            if (vendorPlansEntity.getOperatorId() == 1) {
+//                // Jazz | Game now
+//                message = dataManagerService.getMtMessage("jazz_sub").getMsgText();
+//
+//                // This check was added for the following use case :: If an already subscribed user in the past 30/45 days logs
+//                // in, he should not receive subscription MT. It is make sure by status id 8, which means that the user is
+//                // already in subscription renewal.
+//                if (lastUserStatus != null && lastUserStatus.getStatusId() == 8) {
+//                    isMtAllowed = false;
+//                } else {
+//                    isMtAllowed = true;
+//                }
+//            } else
+                if (vendorPlansEntity.getOperatorId() == 4) {
                 // Zong | Games
                 message = dataManagerService.getMtMessage("zong_sub").getMsgText();
 
@@ -405,38 +402,40 @@ public class SubscriptionEventHandler implements RequestEventHandler {
             String message = null;
             boolean isMtAllowed;
 
-            if (vendorPlansEntity.getOperatorId() == 1) {
-                // In case of game now, create free trial response.
-                try {
-                    createResponse(fiegnResponse.getMsg(), ResponseTypeConstants.FREE_TRIAL_SUBSCRIPTION,
-                            requestProperties.getCorrelationId());
-                } catch (Exception e) {
-                    log.info("Subscription SERVICE | Exception | Creating response | " + e.getCause());
-                }
-
-                // Get free trial MT message from DB
-                message = dataManagerService.getMtMessage("jazz_sub_freetrial").getMsgText();
-
-                // This check was added for the following use case :: If an already subscribed user in the past 30/45 days logs
-                // in, he should not receive subscription MT. It is make sure by status id 8, which means that the user is
-                // already in subscription renewal.
-                if (lastUserStatus != null && lastUserStatus.getStatusId() == 8) {
-                    isMtAllowed = false;
-                } else {
-                    isMtAllowed = true;
-                }
-
-                if (isMtAllowed) {
-                    sendMT(requestProperties, message);
-                }
-
-                try {
-                    createUserStatusEntity(requestProperties, _user, UserStatusTypeConstants.SUBSCRIBED, false);
-                    saveLogInRecord(requestProperties, vendorPlansEntity.getId());
-                } catch (Exception e) {
-                    log.info("Subscription SERVICE |  Exception | User status & login updates | " + e.getCause());
-                }
-            } else if (vendorPlansEntity.getOperatorId() == 4) {
+//            if (vendorPlansEntity.getOperatorId() == 1) {
+//                // In case of game now, create free trial response.
+//                try {
+//                    createResponse(fiegnResponse.getMsg(), ResponseTypeConstants.FREE_TRIAL_SUBSCRIPTION,
+//                            requestProperties.getCorrelationId());
+//                } catch (Exception e) {
+//                    log.info("Subscription SERVICE | Exception | Creating response | " + e.getCause());
+//                }
+//
+//                // Get free trial MT message from DB
+//                message = dataManagerService.getMtMessage("jazz_sub_freetrial").getMsgText();
+//
+//                // This check was added for the following use case :: If an already subscribed user in the past 30/45 days logs
+//                // in, he should not receive subscription MT. It is make sure by status id 8, which means that the user is
+//                // already in subscription renewal.
+//                if (lastUserStatus != null && lastUserStatus.getStatusId() == 8) {
+//                    isMtAllowed = false;
+//                } else {
+//                    isMtAllowed = true;
+//                }
+//
+//                if (isMtAllowed) {
+//                    sendMT(requestProperties, message);
+//                }
+//
+//                try {
+//                    createUserStatusEntity(requestProperties, _user, UserStatusTypeConstants.SUBSCRIBED, false);
+//                    saveLogInRecord(requestProperties, vendorPlansEntity.getId());
+//                } catch (Exception e) {
+//                    log.info("Subscription SERVICE |  Exception | User status & login updates | " + e.getCause());
+//                }
+//            }
+//            else
+                if (vendorPlansEntity.getOperatorId() == 4) {
                 // In case of Zong games, create free trial as well.
                 try {
                     createResponse(fiegnResponse.getMsg(), ResponseTypeConstants.INSUFFICIENT_BALANCE,
@@ -461,7 +460,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
     }
 
     private void createResponse(String desc, String resultStatus, String correlationId) {
-        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | " + correlationId + " | TRYING TO CREATE RESPONSE");
+        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + correlationId + " | TRYING TO CREATE RESPONSE");
         VendorRequestsStateEntity entity = null;
         boolean isNull = true;
         int i = 0;
@@ -494,8 +493,8 @@ public class SubscriptionEventHandler implements RequestEventHandler {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
-        log.info("CONSUMER SERVICE | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATE UPDATED");
+        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATE UPDATED");
     }
 
     private void continueUserSubscriptionProcess(RequestProperties requestProperties, UsersEntity _user, VendorPlansEntity vendorPlansEntity) {
@@ -590,46 +589,46 @@ public class SubscriptionEventHandler implements RequestEventHandler {
 
 
 
-    public String verifyOTP(long msisdn,long otp) throws URISyntaxException {
-        RestTemplate restTemplate=new RestTemplate();
-        String param1="jnhuuu58sdf",param2="android",param3="",identifier="";
-        String body="{" +
-                "\"Identifier\":"+"\""+msisdn+"\","+
-                "\"OTP\":\""+otp+"\","+
-                "\"param1\":" +"\"GAMENOW CASUALGAMEZ\","+
-                "\"param2\":" +"\"android \","+
-                "\"param3\":" +"\"\""+
-                "}";
-        System.out.println(body);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type","application/json");
-        headers.set("Connection","keep-alive");
-        headers.set("Authorization","Bearer "+TokenManager.accessToken);
-        headers.set("Channel","GAMENOWCASUAL");
-        try{
-        HttpEntity<Map<String, Object>> entity = new HttpEntity(body, headers);
-   ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apim.jazz.com.pk/auth/verifyOTP"),entity,String.class); 
-//      ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apimtest.jazz.com.pk:8282/auth/verifyOTP"),entity,String.class);
-            
-
-
-
-
-        JSONObject json = new JSONObject(str.getBody());
-        log.info(str.getStatusCode()+" "+str.getBody()+ "msidn: "+msisdn);
-        log.info(json.getString("msg")+" -----------");
-        return json.getString("msg");
-    }catch(
-    HttpClientErrorException e){
-        if(e.getStatusCode().value()==401){
-            System.out.println("calling");
-            TokenManager.getToken();
-            this.verifyOTP(msisdn,otp);
-        }
-    }
-
-       return "-1";
-    }
+//    public String verifyOTP(long msisdn,long otp) throws URISyntaxException {
+//        RestTemplate restTemplate=new RestTemplate();
+//        String param1="jnhuuu58sdf",param2="android",param3="",identifier="";
+//        String body="{" +
+//                "\"Identifier\":"+"\""+msisdn+"\","+
+//                "\"OTP\":\""+otp+"\","+
+//                "\"param1\":" +"\"GAMENOW CASUALGAMEZ\","+
+//                "\"param2\":" +"\"android \","+
+//                "\"param3\":" +"\"\""+
+//                "}";
+//        System.out.println(body);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Content-Type","application/json");
+//        headers.set("Connection","keep-alive");
+//        headers.set("Authorization","Bearer "+TokenManager.accessToken);
+//        headers.set("Channel","GAMENOWCASUAL");
+//        try{
+//        HttpEntity<Map<String, Object>> entity = new HttpEntity(body, headers);
+//   ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apim.jazz.com.pk/auth/verifyOTP"),entity,String.class);
+////      ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apimtest.jazz.com.pk:8282/auth/verifyOTP"),entity,String.class);
+//
+//
+//
+//
+//
+//        JSONObject json = new JSONObject(str.getBody());
+//        log.info(str.getStatusCode()+" "+str.getBody()+ "msidn: "+msisdn);
+//        log.info(json.getString("msg")+" -----------");
+//        return json.getString("msg");
+//    }catch(
+//    HttpClientErrorException e){
+//        if(e.getStatusCode().value()==401){
+//            System.out.println("calling");
+//            TokenManager.getToken();
+//            this.verifyOTP(msisdn,otp);
+//        }
+//    }
+//
+//       return "-1";
+//    }
 
 
     private OtpRecordsEntity getTopOtpRecordFromMsidn(Long msisdn)

@@ -103,6 +103,6 @@ public class BlockingEventHandler implements RequestEventHandler {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        log.info("CONSUMER SERVICE | BLOCKINGEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+        log.info("ZONG CONSUMER SERVICE  | BLOCKINGEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
     }
 }

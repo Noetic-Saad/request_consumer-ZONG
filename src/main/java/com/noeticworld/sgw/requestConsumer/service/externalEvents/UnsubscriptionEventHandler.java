@@ -11,8 +11,6 @@ import com.noeticworld.sgw.util.RequestActionCodeConstants;
 import com.noeticworld.sgw.util.RequestProperties;
 import com.noeticworld.sgw.util.ResponseTypeConstants;
 import com.noeticworld.sgw.util.UserStatusTypeConstants;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,16 +56,18 @@ public class UnsubscriptionEventHandler implements RequestEventHandler {
             } finally {
                 createResponse(ResponseTypeConstants.SUBSCRIBER_NOT_FOUND, requestProperties.getCorrelationId());
             }
-        } else if (_user.getOperatorId() == 1 && !requestProperties.isFromEDA()) {
-            // DBSS flow for Jazz | isFromEDA: false on first request from user.
-            createMsisdnCorrelation(requestProperties);
-            HttpResponse<String> response =
-                    Unirest.get(DBSS_API + "/dbss/product-deactivation/" + requestProperties.getMsisdn() + "/" +
-                            requestProperties.getCorrelationId()).asString();
-            log.info("UNSUBSCRIBE EVENT HANDLER CLASS | DBSS | " + requestProperties.getMsisdn() + " | " + response.getStatus() +
-                    " | " + response.getBody());
-            return;
-        } else {
+        }
+//        else if (_user.getOperatorId() == 1 && !requestProperties.isFromEDA()) {
+//            // DBSS flow for Jazz | isFromEDA: false on first request from user.
+//            createMsisdnCorrelation(requestProperties);
+//            HttpResponse<String> response =
+//                    Unirest.get(DBSS_API + "/dbss/product-deactivation/" + requestProperties.getMsisdn() + "/" +
+//                            requestProperties.getCorrelationId()).asString();
+//            log.info("UNSUBSCRIBE EVENT HANDLER CLASS | DBSS | " + requestProperties.getMsisdn() + " | " + response.getStatus() +
+//                    " | " + response.getBody());
+//            return;
+//        }
+        else {
             VendorPlansEntity vendorPlans = dataService.getVendorPlans(_user.getVendorPlanId());
             String resultCode = "";
             try {
@@ -101,7 +101,7 @@ public class UnsubscriptionEventHandler implements RequestEventHandler {
         log.info("Statud Id For Msisdn" + users.getMsisdn() + " status_id :" + statusId);
         UsersStatusEntity entity = userStatusRepository.findTopById(users.getUserStatusId());
         if (entity == null) {
-            log.info("CONSUMER SERVICE | UNSUBSCRIPTIONEVENTHANDLER CLASS | MSISDN " + users.getMsisdn() + " STATUS ENTITY NOT FOUND");
+            log.info("ZONG CONSUMER SERVICE  | UNSUBSCRIPTIONEVENTHANDLER CLASS | MSISDN " + users.getMsisdn() + " STATUS ENTITY NOT FOUND");
             return ResponseTypeConstants.SUBSCRIBER_NOT_FOUND;
         } else if (entity.getStatusId() == dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)) {
             UsersStatusEntity entity1 = new UsersStatusEntity();
@@ -132,7 +132,7 @@ public class UnsubscriptionEventHandler implements RequestEventHandler {
             usersRepository.save(users);
             return ResponseTypeConstants.UNSUSBCRIBED_SUCCESSFULL;
         } else if (entity.getStatusId() != dataService.getUserStatusTypeId(UserStatusTypeConstants.SUBSCRIBED)) {
-            log.info("CONSUMER SERVICE | UNSUBSCRIPTIONEVENTHANDLER CLASS | MSISDN " + users.getMsisdn() + " ALREADY UNSUBSCRIBED");
+            log.info("ZONG CONSUMER SERVICE  | UNSUBSCRIPTIONEVENTHANDLER CLASS | MSISDN " + users.getMsisdn() + " ALREADY UNSUBSCRIBED");
             return ResponseTypeConstants.ALREADY_UNSUBSCRIBED;
         } else {
             return ResponseTypeConstants.OTHER_ERROR;
@@ -148,7 +148,7 @@ public class UnsubscriptionEventHandler implements RequestEventHandler {
         }
         boolean isNull = true;
         if (entity == null) {
-            log.info("CONSUMER SERVICE | UNSUBSCRIPTIONEVENTHANDLER CLASS | NULL ENTITY");
+            log.info("ZONG CONSUMER SERVICE  | UNSUBSCRIPTIONEVENTHANDLER CLASS | NULL ENTITY");
             while (isNull) {
                 entity = redisRepository.findVendorRequestStatus(correlationId);
                 if(entity == null)
@@ -180,7 +180,7 @@ public class UnsubscriptionEventHandler implements RequestEventHandler {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        log.info("CONSUMER SERVICE | UNSUBSCRIPTIONEVENTHANDLER CLASS | RESPONSE CREATED");
-        log.info("CONSUMER SERVICE | UNSUBSCRIPTIONEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+        log.info("ZONG CONSUMER SERVICE  | UNSUBSCRIPTIONEVENTHANDLER CLASS | RESPONSE CREATED");
+        log.info("ZONG CONSUMER SERVICE  | UNSUBSCRIPTIONEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
     }
 }

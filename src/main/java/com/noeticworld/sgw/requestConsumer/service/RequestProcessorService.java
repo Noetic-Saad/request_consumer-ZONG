@@ -22,6 +22,6 @@ public class RequestProcessorService {
     public void process(CustomMessage customMessage) throws URISyntaxException, UnirestException {
         RequestProperties requestProperties = new RequestProperties(customMessage);
         requestHandlerManager.manage(requestProperties);
-        log.info("CONSUMER SERVICE | REQUESTPROCESSORSERVICE CLASS | REQUEST PROCESSED FOR | "+ customMessage.getMsisdn());
+        log.info("ZONG CONSUMER SERVICE  | REQUESTPROCESSORSERVICE CLASS | REQUEST PROCESSED FOR | "+ customMessage.getMsisdn());
     }
 }

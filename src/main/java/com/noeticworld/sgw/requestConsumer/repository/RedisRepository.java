@@ -32,16 +32,16 @@ public class RedisRepository {
 
     public void saveVendorRequest(String key, String entity){
         hashOperations.put(VendorRequestEntityKEY, key, entity);
-        log.info("REDISREPOSITORY || SAVEVENDORREQUEST || ", entity.toString());
+        log.info("REDISREPOSITORY SAVEVENDORREQUEST || VENDOREEQUEST ", entity.toString());
     }
 
     public void saveOtpRecord(String key,String entity){
         hashOperations.put(OTPEntityKEY, key, entity);
-        log.info("AFTER || REDISREPOSITORY || SAVEOTPRECORD || " + hashOperations.values(OTPEntityKEY));
+        log.info("REDISREPOSITORY SAVEOTPRECORDS || OTPRECORD " + entity);
     }
 
     public List<OtpRecordsEntity> findAllOTPOfMsisdn(String Msisdn){
-        log.info("REDISREPOSITORY || FINDALLOTPOFMSISDN || " + Msisdn);
+        log.info("REDISREPOSITORY FINDALLOTPOFMSISDN || MSISDN " + Msisdn);
         List<OtpRecordsEntity> otprecordlist = new ArrayList<>();
         List listofids =  hashOperations.values(OTPEntityKEY);
         for (int i = 0; i <listofids.size() ; i++) {
@@ -54,19 +54,17 @@ public class RedisRepository {
                 e.printStackTrace();
             }
         }
-        log.info("REDISREPOSITORY || FINDALLOTPOFMSISDN || " + otprecordlist.toString());
+        log.info("REDISREPOSITORY FINDALLOTPOFMSISDN || OTPRECORDLIST " + otprecordlist.toString());
         return otprecordlist;
     }
 
     public VendorRequestsStateEntity findVendorRequestStatus(String CorelationId){
-        log.info("LINE 64 || " + CorelationId);
+        log.info("REDISREPOSOTORY FINDVENDORREQUESTSTATUS || CORELATIONID " + CorelationId);
         String vendor = (String) hashOperations.get(VendorRequestEntityKEY, CorelationId);
-        log.info(""+hashOperations.get(VendorRequestEntityKEY, CorelationId));
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             VendorRequestsStateEntity vendorRequestStatusEntity = objectMapper.readValue(vendor, VendorRequestsStateEntity.class);
-            log.info("LINE 64 || " + vendorRequestStatusEntity.toString());
-            log.info("REDISREPOSITORY || FINDOTPRECORD || " + vendorRequestStatusEntity.toString());
+            log.info("REDISREPOSITORY FINDVENDORREQUESTSTATUS || VENDORREQUEST " + vendorRequestStatusEntity.toString());
             return vendorRequestStatusEntity;
         } catch (IOException e) {
             e.printStackTrace();

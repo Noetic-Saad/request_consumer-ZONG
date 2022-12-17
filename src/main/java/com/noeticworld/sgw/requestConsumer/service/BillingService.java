@@ -1,6 +1,9 @@
 package com.noeticworld.sgw.requestConsumer.service;
 
-import com.noeticworld.sgw.requestConsumer.entities.*;
+import com.noeticworld.sgw.requestConsumer.entities.GamesBillingRecordEntity;
+import com.noeticworld.sgw.requestConsumer.entities.UsersEntity;
+import com.noeticworld.sgw.requestConsumer.entities.UsersStatusEntity;
+import com.noeticworld.sgw.requestConsumer.entities.VendorPlansEntity;
 import com.noeticworld.sgw.requestConsumer.repository.GamesBillingRecordRepository;
 import com.noeticworld.sgw.requestConsumer.repository.MsisdnCorrelationsRepository;
 import com.noeticworld.sgw.requestConsumer.repository.UserStatusRepository;
@@ -9,18 +12,13 @@ import com.noeticworld.sgw.util.BillingClient;
 import com.noeticworld.sgw.util.ChargeRequestProperties;
 import com.noeticworld.sgw.util.FiegnResponse;
 import com.noeticworld.sgw.util.RequestProperties;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -57,13 +55,14 @@ public class BillingService {
         // Latest status != 2 is appended to make sure that if the user is charged for that day and then
         // unsub and login to the system (Charging request) again, we want to send charging request to SGW
         // Billing and from there the setCode() will be set to 101(SUCCESSFULLY_CHARGED).
-        if (user.getOperatorId() == 1 && isAlreadyChargedToday(requestProperties.getMsisdn()) && latestUserStatus.getStatusId() != 2) {
-            log.info("BILLING SERVICE | CHARGING CLASS | ALREADY CHARGED TODAY | " + requestProperties.getMsisdn());
-            fiegnResponse.setCode(110);
-            fiegnResponse.setCorrelationId(requestProperties.getCorrelationId());
-            fiegnResponse.setMsg("ALREADY SUBSCRIBED");
-            return fiegnResponse;
-        } else if (user.getOperatorId() == 4 && isAlreadyChargedFor7Days(requestProperties.getMsisdn()) && latestUserStatus.getStatusId() != 2) {
+//        if (user.getOperatorId() == 1 && isAlreadyChargedToday(requestProperties.getMsisdn()) && latestUserStatus.getStatusId() != 2) {
+//            log.info("BILLING SERVICE | CHARGING CLASS | ALREADY CHARGED TODAY | " + requestProperties.getMsisdn());
+//            fiegnResponse.setCode(110);
+//            fiegnResponse.setCorrelationId(requestProperties.getCorrelationId());
+//            fiegnResponse.setMsg("ALREADY SUBSCRIBED");
+//            return fiegnResponse;
+//        } else
+            if (user.getOperatorId() == 4 && isAlreadyChargedFor7Days(requestProperties.getMsisdn()) && latestUserStatus.getStatusId() != 2) {
             log.info("BILLING SERVICE | CHARGING CLASS | ALREADY CHARGED FOR 7 DAYS | " + requestProperties.getMsisdn());
             fiegnResponse.setCode(110);
             fiegnResponse.setCorrelationId(requestProperties.getCorrelationId());
@@ -71,29 +70,29 @@ public class BillingService {
             return fiegnResponse;
         } else {
             // ----- DBSS Call for Jazz GameNow -----
-            if (user.getOperatorId() == 1) {
-                /*
-                 * 2 - unsub
-                 * 4 - telco unsub
-                 * 5 - renewal unsub
-                 * */
-                if (user.getUserStatusId() == null || latestUserStatus.getStatusId() == 2 || latestUserStatus.getStatusId() == 4
-                        || latestUserStatus.getStatusId() == 5) {
-
-                    log.info("BILLING SERVICE | DBSS REQUEST | " + requestProperties.getMsisdn() + " | " +
-                            (user.getUserStatusId() == null ? "First time user" : "Status Id: " + latestUserStatus.getStatusId()));
-
-                    createMsisdnCorrelation(requestProperties);
-
-                    HttpResponse<String> response =
-                            Unirest.get("http://localhost:10001/dbss/product-activation/" + requestProperties.getMsisdn()
-                                    + "/" + requestProperties.getCorrelationId()).asString();
-
-                    log.info("BILLING SERVICE | DBSS RESPONSE | " + requestProperties.getMsisdn() + " | " + response.getStatus() +
-                            " | " + response.getBody());
-                    return null;
-                }
-            }
+//            if (user.getOperatorId() == 1) {
+//                /*
+//                 * 2 - unsub
+//                 * 4 - telco unsub
+//                 * 5 - renewal unsub
+//                 * */
+//                if (user.getUserStatusId() == null || latestUserStatus.getStatusId() == 2 || latestUserStatus.getStatusId() == 4
+//                        || latestUserStatus.getStatusId() == 5) {
+//
+//                    log.info("BILLING SERVICE | DBSS REQUEST | " + requestProperties.getMsisdn() + " | " +
+//                            (user.getUserStatusId() == null ? "First time user" : "Status Id: " + latestUserStatus.getStatusId()));
+//
+//                    createMsisdnCorrelation(requestProperties);
+//
+//                    HttpResponse<String> response =
+//                            Unirest.get("http://localhost:10001/dbss/product-activation/" + requestProperties.getMsisdn()
+//                                    + "/" + requestProperties.getCorrelationId()).asString();
+//
+//                    log.info("BILLING SERVICE | DBSS RESPONSE | " + requestProperties.getMsisdn() + " | " + response.getStatus() +
+//                            " | " + response.getBody());
+//                    return null;
+//                }
+//            }
             log.info("After DBSS");
 
             VendorPlansEntity vendorPlansEntity = dataService.getVendorPlans(requestProperties.getVendorPlanId());
@@ -114,24 +113,26 @@ public class BillingService {
             }
             chargeRequestProperties.setIsRenewal(0);
 
-            fiegnResponse = billingClient.charge(chargeRequestProperties);
+            log.info("BILLING SERVICE | CHARGING CLASS | FEIGN CLIENT CHARGE ");
+//            fiegnResponse = billingClient.charge(chargeRequestProperties);
+
             return fiegnResponse;
         }
 
     }
 
-    private void createMsisdnCorrelation(RequestProperties requestProperties) {
-        MsisdnCorrelations msisdnCorrelations = new MsisdnCorrelations();
-        msisdnCorrelations.setMsisdn(requestProperties.getMsisdn());
-        msisdnCorrelations.setCorrelationId(requestProperties.getCorrelationId());
-        msisdnCorrelations.setCdate(Timestamp.from(Instant.now()));
-        msisdnCorrelationsRepository.save(msisdnCorrelations);
-    }
-
-    private boolean isMsisdnWhiteListedForDBSS(RequestProperties requestProperties) {
-        List<Long> whiteListedEDAsMSISDN = Arrays.asList(923015195540l, 923080144278l, 923015430026l);
-        return whiteListedEDAsMSISDN.stream().anyMatch(msisdn -> msisdn == requestProperties.getMsisdn());
-    }
+//    private void createMsisdnCorrelation(RequestProperties requestProperties) {
+//        MsisdnCorrelations msisdnCorrelations = new MsisdnCorrelations();
+//        msisdnCorrelations.setMsisdn(requestProperties.getMsisdn());
+//        msisdnCorrelations.setCorrelationId(requestProperties.getCorrelationId());
+//        msisdnCorrelations.setCdate(Timestamp.from(Instant.now()));
+//        msisdnCorrelationsRepository.save(msisdnCorrelations);
+//    }
+//
+//    private boolean isMsisdnWhiteListedForDBSS(RequestProperties requestProperties) {
+//        List<Long> whiteListedEDAsMSISDN = Arrays.asList(923015195540l, 923080144278l, 923015430026l);
+//        return whiteListedEDAsMSISDN.stream().anyMatch(msisdn -> msisdn == requestProperties.getMsisdn());
+//    }
 
     private boolean isAlreadyChargedFor7Days(long msisdn) {
         LocalDateTime toDate = LocalDateTime.now();
@@ -140,36 +141,36 @@ public class BillingService {
         return !entity.isEmpty();
     }
 
-    private boolean isAlreadyChargedToday(long msisdn) {
-        log.info("BILLING SERVICE | CHARGING CLASS | CHECKING IF ALREADY CHARGED TODAY | " + msisdn);
-        Timestamp fromDate = Timestamp.valueOf(LocalDate.now().atStartOfDay());
-        Timestamp currenttime = Timestamp.valueOf(LocalDateTime.now().plusDays(1));
-        Timestamp toDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59));
+//    private boolean isAlreadyChargedToday(long msisdn) {
+//        log.info("BILLING SERVICE | CHARGING CLASS | CHECKING IF ALREADY CHARGED TODAY | " + msisdn);
+//        Timestamp fromDate = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+//        Timestamp currenttime = Timestamp.valueOf(LocalDateTime.now().plusDays(1));
+//        Timestamp toDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59));
+//
+//        List<GamesBillingRecordEntity> gamesBillingRecordEntity = gamesBillingRecordsRepository.isAlreadyChargedForToday(msisdn, fromDate, toDate);
+//        log.info("Check if = " + !gamesBillingRecordEntity.isEmpty());
+//
+//        return !gamesBillingRecordEntity.isEmpty();
+//    }
 
-        List<GamesBillingRecordEntity> gamesBillingRecordEntity = gamesBillingRecordsRepository.isAlreadyChargedForToday(msisdn, fromDate, toDate);
-        log.info("Check if = " + !gamesBillingRecordEntity.isEmpty());
-
-        return !gamesBillingRecordEntity.isEmpty();
-    }
-
-    private boolean isFreeTrial(long msisdn) {
-        log.info("BILLING SERVICE | CHARGING CLASS | CHECKING IF FreeTrial CHARGED TODAY | " + msisdn);
-        Timestamp fromDate = Timestamp.valueOf(LocalDate.now().atStartOfDay());
-        Timestamp toDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59));
-        UsersEntity _user = usersRepository.findByMsisdn(msisdn);
-        List<UsersStatusEntity> entitylist = null;
-        if (_user != null) {
-            log.info("User Is Not Null Checking Free Trial");
-            entitylist = userStatusRepository.IsFreeTrialUser(fromDate, _user.getId());
-            if (!entitylist.isEmpty()) {
-                log.info("Free Trial Users");
-                return true;
-            } else {
-                log.info("Not Free Trial Users");
-                return false;
-            }
-
-        }
-        return false;
-    }
+//    private boolean isFreeTrial(long msisdn) {
+//        log.info("BILLING SERVICE | CHARGING CLASS | CHECKING IF FreeTrial CHARGED TODAY | " + msisdn);
+//        Timestamp fromDate = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+//        Timestamp toDate = Timestamp.valueOf(LocalDate.now().atTime(23, 59));
+//        UsersEntity _user = usersRepository.findByMsisdn(msisdn);
+//        List<UsersStatusEntity> entitylist = null;
+//        if (_user != null) {
+//            log.info("User Is Not Null Checking Free Trial");
+//            entitylist = userStatusRepository.IsFreeTrialUser(fromDate, _user.getId());
+//            if (!entitylist.isEmpty()) {
+//                log.info("Free Trial Users");
+//                return true;
+//            } else {
+//                log.info("Not Free Trial Users");
+//                return false;
+//            }
+//
+//        }
+//        return false;
+//    }
 }

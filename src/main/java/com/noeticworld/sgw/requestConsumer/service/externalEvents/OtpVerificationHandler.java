@@ -13,25 +13,16 @@ import com.noeticworld.sgw.requestConsumer.service.ConfigurationDataManagerServi
 import com.noeticworld.sgw.util.MtClient;
 import com.noeticworld.sgw.util.MtProperties;
 import com.noeticworld.sgw.util.RequestProperties;
-import com.noeticworld.sgw.util.TokenManager;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -69,43 +60,43 @@ public class OtpVerificationHandler implements RequestEventHandler {
 //        System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number" + otpNumber);
 
 
-        if(vendorPlansEntity.getOperatorId()==1){
-
-           String otp= sendOTP(requestProperties.getMsisdn());
-           if(otp.equals(null) || otp.equals("0")){
-               System.out.println("OTP is = "+ otp);
-               return;
-           }
-            LoginEntity loginEntity = new LoginEntity();
-            loginEntity.setMsisdn(requestProperties.getMsisdn());
-            loginEntity.setUpdateddate(Timestamp.valueOf(LocalDateTime.now()));
-            loginEntity.setTrackingId(requestProperties.getTrackerId());
-            loginEntity.setCode(Integer.valueOf(otp));
-
-            //changes
-            logger.info("OTP="+ Integer.valueOf(otp));
-            mtProperties.setData("");
-            mtProperties.setMsisdn(Long.toString(requestProperties.getMsisdn()));
-            mtProperties.setShortCode("By Jazz");
-            mtProperties.setPassword("");
-            mtProperties.setUsername("");
-            mtProperties.setServiceId("By Jazz");
-            if(Integer.valueOf(otp) != -1){
-                saveOtpRecords(mtProperties, Integer.valueOf(otp), vendorPlansEntity.getId());
-                System.out.println("Saving Jazz Msisdn In Login Table : " + " Vendor Plan id : " + requestProperties.getVendorPlanId() );
-                System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number " + otp);
-            } else
-            {
-                saveOtpRecords(mtProperties, this.otpverify, vendorPlansEntity.getId());
-                System.out.println("Saving Jazz Msisdn In Login Table : " + " Vendor Plan id : " + requestProperties.getVendorPlanId() );
-                System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number " + otp);
-            }
-
-                  loginRepository.save(loginEntity);
-
-
-    }
-        else {
+//        if(vendorPlansEntity.getOperatorId()==1){
+//
+//           String otp= sendOTP(requestProperties.getMsisdn());
+//           if(otp.equals(null) || otp.equals("0")){
+//               System.out.println("OTP is = "+ otp);
+//               return;
+//           }
+//            LoginEntity loginEntity = new LoginEntity();
+//            loginEntity.setMsisdn(requestProperties.getMsisdn());
+//            loginEntity.setUpdateddate(Timestamp.valueOf(LocalDateTime.now()));
+//            loginEntity.setTrackingId(requestProperties.getTrackerId());
+//            loginEntity.setCode(Integer.valueOf(otp));
+//
+//            //changes
+//            logger.info("OTP="+ Integer.valueOf(otp));
+//            mtProperties.setData("");
+//            mtProperties.setMsisdn(Long.toString(requestProperties.getMsisdn()));
+//            mtProperties.setShortCode("By Jazz");
+//            mtProperties.setPassword("");
+//            mtProperties.setUsername("");
+//            mtProperties.setServiceId("By Jazz");
+//            if(Integer.valueOf(otp) != -1){
+//                saveOtpRecords(mtProperties, Integer.valueOf(otp), vendorPlansEntity.getId());
+//                System.out.println("Saving Jazz Msisdn In Login Table : " + " Vendor Plan id : " + requestProperties.getVendorPlanId() );
+//                System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number " + otp);
+//            } else
+//            {
+//                saveOtpRecords(mtProperties, this.otpverify, vendorPlansEntity.getId());
+//                System.out.println("Saving Jazz Msisdn In Login Table : " + " Vendor Plan id : " + requestProperties.getVendorPlanId() );
+//                System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number " + otp);
+//            }
+//
+//                  loginRepository.save(loginEntity);
+//
+//
+//    }
+        if(vendorPlansEntity.getOperatorId()==4) {
             // MtMessageSettingsEntity mtMessageSettingsEntity = dataManagerService.getMtMessageSetting(vendorPlansEntity.getId());
  //changes
             System.out.println("vendorPlansEntity.getPlanName()" + vendorPlansEntity.getPlanName() + requestProperties.getVendorPlanId() + " | OTP Number" + otpNumber);
@@ -135,7 +126,7 @@ public class OtpVerificationHandler implements RequestEventHandler {
                         .asString();
                 logger.info("Response From MT in OTPVERIFICATIONHANDLER" + response1.getBody());
             } catch (Exception e) {
-                logger.info("CONSUMER SERVICE | OTPVERIFICATIONHANDLER CLASS | EXCEPTION CAUGHT | " + e.getCause());
+                logger.info("ZONG CONSUMER SERVICE  | OTPVERIFICATIONHANDLER CLASS | EXCEPTION CAUGHT | " + e.getCause());
             }
             saveOtpRecords(mtProperties, otpNumber, vendorPlansEntity.getId());
 
@@ -169,8 +160,8 @@ public class OtpVerificationHandler implements RequestEventHandler {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        logger.info("CONSUMER SERVICE | OTPVERIFICATIONHANDLER CLASS | OTP REOCRDS SAVED IN REDIS");
-        logger.info("CONSUMER SERVICE | OTPVERIFICATIONHANDLER CLASS | OTP REOCRDS SAVED");
+        logger.info("ZONG CONSUMER SERVICE  | OTPVERIFICATIONHANDLER CLASS | OTP REOCRDS SAVED IN REDIS");
+        logger.info("ZONG CONSUMER SERVICE  | OTPVERIFICATIONHANDLER CLASS | OTP REOCRDS SAVED");
     }
 
 
@@ -178,67 +169,55 @@ public class OtpVerificationHandler implements RequestEventHandler {
 
 
     //send otp for jazz new
-    public String sendOTP(long msisdn) throws URISyntaxException {
-        RestTemplate restTemplate=new RestTemplate();
-        String body="{" +
-                "\"Identifier\":"+"\""+msisdn+"\","+
-                "\"param1\":" +"\"GAMENOW CASUALGAMEZ\","+
-                "\"param2\":" +"\"android\","+
-                "\"param3\":" +"\"\""+
-                "}";
-        logger.info(body);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type","application/json");
-        headers.set("Connection","keep-alive");
-        headers.set("Authorization","Bearer "+TokenManager.accessToken);
-        headers.set("Channel","GAMENOWCASUAL");
-        HttpEntity<Map<String, Object>> entity = new HttpEntity(body, headers);
-        try {
-//        ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apimtest.jazz.com.pk:8282/auth/sendOTP"),entity,String.class);
-            ResponseEntity<String> str = restTemplate.postForEntity(new URI("https://apim.jazz.com.pk/auth/sendOTP"), entity, String.class);
-            JSONObject json = new JSONObject(str.getBody());
-            //     logger.info(str.getStatusCode() + " " + str.getBody()+" msisdn: "+msisdn);
-
-            if (json.has("errorCode")) {
-                logger.info("This is postpaid = " + msisdn);
-                return null;
-            } else if (json.getString("resultCode").equals("ERR-0001")) {
-//                System.out.println("JSon Is null");
-                logger.info("new OTP will generate after 1 minute | " + msisdn);
-                return null;
-            } else  if (json.get("resultCode").equals("00"))
-            {
-
-                this.otpverify = Integer.parseInt(json.getJSONObject("data").getString("msg"));
-              System.out.println("Verify OTP"+ otpverify);
-
-
-            return json.getJSONObject("data").getString("msg");
-        }
-            return null;
-        }catch(HttpClientErrorException e){
-            if(e.getStatusCode().value()==401){
-            System.out.println("calling");
-            TokenManager.getToken();
-            this.sendOTP(msisdn);
-        }
-
-            return String.valueOf(otpverify);
-        }
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+//    public String sendOTP(long msisdn) throws URISyntaxException {
+//        RestTemplate restTemplate=new RestTemplate();
+//        String body="{" +
+//                "\"Identifier\":"+"\""+msisdn+"\","+
+//                "\"param1\":" +"\"GAMENOW CASUALGAMEZ\","+
+//                "\"param2\":" +"\"android\","+
+//                "\"param3\":" +"\"\""+
+//                "}";
+//        logger.info(body);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Content-Type","application/json");
+//        headers.set("Connection","keep-alive");
+//        headers.set("Authorization","Bearer "+TokenManager.accessToken);
+//        headers.set("Channel","GAMENOWCASUAL");
+//        HttpEntity<Map<String, Object>> entity = new HttpEntity(body, headers);
+//        try {
+////        ResponseEntity<String> str= restTemplate.postForEntity(new URI("https://apimtest.jazz.com.pk:8282/auth/sendOTP"),entity,String.class);
+//            ResponseEntity<String> str = restTemplate.postForEntity(new URI("https://apim.jazz.com.pk/auth/sendOTP"), entity, String.class);
+//            JSONObject json = new JSONObject(str.getBody());
+//            //     logger.info(str.getStatusCode() + " " + str.getBody()+" msisdn: "+msisdn);
+//
+//            if (json.has("errorCode")) {
+//                logger.info("This is postpaid = " + msisdn);
+//                return null;
+//            } else if (json.getString("resultCode").equals("ERR-0001")) {
+////                System.out.println("JSon Is null");
+//                logger.info("new OTP will generate after 1 minute | " + msisdn);
+//                return null;
+//            } else  if (json.get("resultCode").equals("00"))
+//            {
+//
+//                this.otpverify = Integer.parseInt(json.getJSONObject("data").getString("msg"));
+//              System.out.println("Verify OTP"+ otpverify);
+//
+//
+//            return json.getJSONObject("data").getString("msg");
+//        }
+//            return null;
+//        }catch(HttpClientErrorException e){
+//            if(e.getStatusCode().value()==401){
+//            System.out.println("calling");
+//            TokenManager.getToken();
+//            this.sendOTP(msisdn);
+//        }
+//
+//            return String.valueOf(otpverify);
+//        }
+//
+//    }
 
 
 }
