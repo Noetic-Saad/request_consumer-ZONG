@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Objects;
 
+
 @Entity
 @Table(name = "vendor_requests_state", schema = "public", catalog = "sgw")
 public class VendorRequestsStateEntity implements Serializable {
@@ -14,6 +15,7 @@ public class VendorRequestsStateEntity implements Serializable {
     private Boolean isFetched;
     private Timestamp cdatetime;
     private String description;
+    private Long vendorPlanId;
 
     @Id
     @Column(name = "id")
@@ -94,4 +96,15 @@ public class VendorRequestsStateEntity implements Serializable {
     public int hashCode() {
         return Objects.hash(id, correlationid, resultStatus, isFetched, cdatetime, description);
     }
+
+    @Basic
+    @Column(name = "vendor_plan_id")
+    public Long getVendorPlanId() {
+        return vendorPlanId;
+    }
+
+    public void setVendorPlanId(Long vendorPlanId) {
+        this.vendorPlanId = vendorPlanId;
+    }
 }
+

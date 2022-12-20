@@ -1,5 +1,8 @@
 package com.noeticworld.sgw.requestConsumer.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.noeticworld.sgw.requestConsumer.entities.GamesBillingRecordEntity;
 import com.noeticworld.sgw.requestConsumer.entities.UsersEntity;
 import com.noeticworld.sgw.requestConsumer.entities.UsersStatusEntity;
@@ -113,8 +116,48 @@ public class BillingService {
             }
             chargeRequestProperties.setIsRenewal(0);
 
-            log.info("BILLING SERVICE | CHARGING CLASS | FEIGN CLIENT CHARGE ");
-//            fiegnResponse = billingClient.charge(chargeRequestProperties);
+                /******************************************/
+                String bodyurl = "";
+
+                try {
+
+                    if (dataService.isTestMsisdn(requestProperties.getMsisdn())) {
+                        bodyurl = "{\n    \"operatorId\" :\"" + chargeRequestProperties.getOperatorId() + "\"," +
+                                "\n    \"correlationId\":\"" + chargeRequestProperties.getCorrelationId() + "\"," +
+                                "\n    \"msisdn\":\"" + chargeRequestProperties.getMsisdn() + "\"," +
+                                "\n    \"subCycleId\":\"" + chargeRequestProperties.getSubCycleId() + "\"," +
+                                "\n    \"chargingAmount\":\"" + chargeRequestProperties.getChargingAmount() + "\"," +
+                                "\n    \"originDateTime\":" + chargeRequestProperties.getOriginDateTime() + "," +
+                                "\n    \"vendorPlanId\":\"" + chargeRequestProperties.getVendorPlanId() + "\"," +
+                                "\n    \"isRenewal\":\"" + chargeRequestProperties.getIsRenewal() + "\"," +
+                                "\n    \"shortcode\":\"" + chargeRequestProperties.getShortcode() + "\"\n}";
+                    } else {
+                        bodyurl = "{\n    \"operatorId\" :\"" + chargeRequestProperties.getOperatorId() + "\"," +
+                                "\n    \"correlationId\":\"" + chargeRequestProperties.getCorrelationId() + "\"," +
+                                "\n    \"msisdn\":\"" + chargeRequestProperties.getMsisdn() + "\"," +
+                                "\n    \"subCycleId\":\"" + chargeRequestProperties.getSubCycleId() + "\"," +
+                                "\n    \"chargingAmount\":\"" + chargeRequestProperties.getChargingAmount() + "\"," +
+                                "\n    \"taxAmount\":\"" + chargeRequestProperties.getTaxAmount() + "\"," +
+                                "\n    \"originDateTime\":" + chargeRequestProperties.getOriginDateTime() + "," +
+                                "\n    \"isRenewal\":\"" + chargeRequestProperties.getIsRenewal() + "\"," +
+                                "\n    \"vendorPlanId\":\"" + chargeRequestProperties.getVendorPlanId() + "\"," +
+                                "\n    \"shortcode\":\"" + chargeRequestProperties.getShortcode() + "\"\n}";
+                    }
+
+                    com.mashape.unirest.http.Unirest.setTimeouts(120, 120);
+                    com.mashape.unirest.http.HttpResponse<String> response1 = null;
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    response1 = com.mashape.unirest.http.Unirest.post("http://localhost:9099/charge")
+                            .header("Content-Type", "application/json")
+                            .body(objectMapper.writeValueAsString( new ChargeRequestProperties(chargeRequestProperties)))
+                            .asString();
+                    log.info("BILLING SERVICE || SEND BILLING REQUEST FROM JAZZ" + response1.getBody());
+                } catch (UnirestException e) {
+                    throw new RuntimeException(e);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+                /******************************************/
 
             return fiegnResponse;
         }

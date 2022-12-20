@@ -1,8 +1,9 @@
 package com.noeticworld.sgw.util;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ChargeRequestProperties {
+public class ChargeRequestProperties implements Serializable {
 
     private long msisdn;
     private Integer operatorId;
@@ -17,6 +18,41 @@ public class ChargeRequestProperties {
     private int isRenewal;
     private int dailyAttempts;
     private int subCycleId;
+
+    public ChargeRequestProperties(long msisdn, Integer operatorId, Integer vendorPlanId, String correlationId, Date originDateTime, Double chargingAmount, String shortcode, double taxAmount, double shareAmount, int attempts, int isRenewal, int dailyAttempts, int subCycleId) {
+        this.msisdn = msisdn;
+        this.operatorId = operatorId;
+        this.vendorPlanId = vendorPlanId;
+        this.correlationId = correlationId;
+        this.originDateTime = originDateTime;
+        this.chargingAmount = chargingAmount;
+        this.shortcode = shortcode;
+        this.taxAmount = taxAmount;
+        this.shareAmount = shareAmount;
+        this.attempts = attempts;
+        this.isRenewal = isRenewal;
+        this.dailyAttempts = dailyAttempts;
+        this.subCycleId = subCycleId;
+    }
+
+    public ChargeRequestProperties() {
+    }
+
+    public ChargeRequestProperties(ChargeRequestProperties chargeRequestProperties) {
+        this.msisdn = chargeRequestProperties.getMsisdn();
+        this.operatorId = chargeRequestProperties.getOperatorId();
+        this.vendorPlanId = chargeRequestProperties.getVendorPlanId();
+        this.correlationId = chargeRequestProperties.getCorrelationId();
+        this.originDateTime = chargeRequestProperties.getOriginDateTime();
+        this.chargingAmount = chargeRequestProperties.getChargingAmount();
+        this.shortcode = chargeRequestProperties.getShortcode();
+        this.taxAmount = chargeRequestProperties.getTaxAmount();
+        this.shareAmount = chargeRequestProperties.getShareAmount();
+        this.attempts = chargeRequestProperties.getAttempts();
+        this.isRenewal = chargeRequestProperties.getIsRenewal();
+        this.dailyAttempts = chargeRequestProperties.getDailyAttempts();
+        this.subCycleId = chargeRequestProperties.getSubCycleId();
+    }
 
     public Integer getOperatorId() {
         return operatorId;
