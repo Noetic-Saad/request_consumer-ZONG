@@ -30,9 +30,9 @@ public class RedisRepository {
         this.hashOperations = this.redisTemplate.opsForHash();
     }
 
-    public void saveVendorRequest(String key, String entity){
-        hashOperations.put(VendorRequestEntityKEY, key, entity);
-        log.info("REDISREPOSITORY SAVEVENDORREQUEST || VENDOREEQUEST ", entity.toString());
+    public void saveVendorRequest(VendorRequestsStateEntity requestStatus){
+        hashOperations.put(VendorRequestEntityKEY, requestStatus.getCorrelationid(), requestStatus);
+        log.info("REDISREPOSITORY SAVEVENDORREQUEST || VENDOREEQUEST ", requestStatus.toString());
     }
 
     public void saveOtpRecord(String key,String entity){
@@ -60,16 +60,15 @@ public class RedisRepository {
 
     public VendorRequestsStateEntity findVendorRequestStatus(String CorelationId){
         log.info("REDISREPOSOTORY FINDVENDORREQUESTSTATUS || CORELATIONID " + CorelationId);
-        String vendor = (String) hashOperations.get(VendorRequestEntityKEY, CorelationId);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            VendorRequestsStateEntity vendorRequestStatusEntity = objectMapper.readValue(vendor, VendorRequestsStateEntity.class);
-            log.info("REDISREPOSITORY FINDVENDORREQUESTSTATUS || VENDORREQUEST " + vendorRequestStatusEntity.toString());
-            return vendorRequestStatusEntity;
-        } catch (IOException e) {
-            e.printStackTrace();
+        VendorRequestsStateEntity vendorRequestStatusEntity = null;
+        vendorRequestStatusEntity = (VendorRequestsStateEntity) hashOperations.get(VendorRequestEntityKEY, CorelationId);
+        log.info("REDISREPOSITORY FINDVENDORREQUESTSTATUS || VENDORREQUEST " + vendorRequestStatusEntity.toString());
+        if(vendorRequestStatusEntity == null)
+        {
+            return null;
         }
-        return null;
+        return vendorRequestStatusEntity;
+
     }
 
 }

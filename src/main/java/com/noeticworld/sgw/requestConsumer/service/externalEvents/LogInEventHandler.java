@@ -194,7 +194,7 @@ public class LogInEventHandler implements RequestEventHandler {
             entity.setDescription(desc);
             requestRepository.save(entity);
             ObjectMapper objectMapper = new ObjectMapper();
-            redisRepository.saveVendorRequest(entity.getCorrelationid(), objectMapper.writeValueAsString(entity.toString()));
+            redisRepository.saveVendorRequest(entity);
             log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
         } catch (Exception ex) {
             log.error("Error In Creating Response" + ex);

@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import com.noeticworld.sgw.requestConsumer.entities.*;
@@ -488,11 +487,7 @@ public class SubscriptionEventHandler implements RequestEventHandler {
         entity.setDescription(desc);
         VendorRequestsStateEntity vre = requestRepository.save(entity);
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            redisRepository.saveVendorRequest(entity.getCorrelationid(), objectMapper.writeValueAsString(entity));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        redisRepository.saveVendorRequest(entity);
         log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
         log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATE UPDATED");
     }

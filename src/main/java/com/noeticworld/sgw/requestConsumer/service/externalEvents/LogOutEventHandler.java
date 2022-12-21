@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noeticworld.sgw.requestConsumer.entities.LoginRecordsEntity;
 import com.noeticworld.sgw.requestConsumer.entities.VendorRequestsStateEntity;
@@ -80,11 +79,7 @@ public class LogOutEventHandler implements RequestEventHandler {
         vendorRequestsStateEntity.setDescription(resultStatusDescription);
         vendorRequestRepository.save(vendorRequestsStateEntity);
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            redisRepository.saveVendorRequest(vendorRequestsStateEntity.getCorrelationid(), objectMapper.writeValueAsString(vendorRequestsStateEntity));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        redisRepository.saveVendorRequest(vendorRequestsStateEntity);
     }
 
 }

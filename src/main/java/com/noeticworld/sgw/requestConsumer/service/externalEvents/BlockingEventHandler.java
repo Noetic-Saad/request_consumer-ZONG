@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noeticworld.sgw.requestConsumer.entities.UsersEntity;
 import com.noeticworld.sgw.requestConsumer.entities.UsersStatusEntity;
@@ -98,11 +97,7 @@ public class BlockingEventHandler implements RequestEventHandler {
         entity.setDescription(desc);
         requestRepository.save(entity);
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            redisRepository.saveVendorRequest(entity.getCorrelationid(), objectMapper.writeValueAsString(entity));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        redisRepository.saveVendorRequest(entity);
         log.info("ZONG CONSUMER SERVICE  | BLOCKINGEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
     }
 }
