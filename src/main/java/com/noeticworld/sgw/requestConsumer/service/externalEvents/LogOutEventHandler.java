@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noeticworld.sgw.requestConsumer.entities.LoginRecordsEntity;
 import com.noeticworld.sgw.requestConsumer.entities.VendorRequestsStateEntity;
 import com.noeticworld.sgw.requestConsumer.repository.LogInRecordRepository;
@@ -54,8 +53,7 @@ public class LogOutEventHandler implements RequestEventHandler {
     }
 
     private void createRequestState(String resultStatusDescription, String resultStatus, RequestProperties requestProperties) {
-        VendorRequestsStateEntity vendorRequestsStateEntity = null;
-        vendorRequestsStateEntity = redisRepository.findVendorRequestStatus(requestProperties.getCorrelationId());
+        VendorRequestsStateEntity vendorRequestsStateEntity = (VendorRequestsStateEntity) vendorRequestRepository.findByCorrelationid(requestProperties.getCorrelationId());
         if(vendorRequestsStateEntity == null)
         {
             vendorRequestRepository.findByCorrelationid(requestProperties.getCorrelationId());
@@ -64,7 +62,7 @@ public class LogOutEventHandler implements RequestEventHandler {
         boolean isNull = true;
         if(vendorRequestsStateEntity==null){
             while (isNull){
-                vendorRequestsStateEntity  = redisRepository.findVendorRequestStatus(requestProperties.getCorrelationId());
+                vendorRequestsStateEntity  = vendorRequestRepository.findByCorrelationid(requestProperties.getCorrelationId());
                 if(vendorRequestsStateEntity == null)
                 {
                     vendorRequestsStateEntity = vendorRequestRepository.findByCorrelationid(requestProperties.getCorrelationId());
@@ -78,8 +76,6 @@ public class LogOutEventHandler implements RequestEventHandler {
         vendorRequestsStateEntity.setResultStatus(resultStatus);
         vendorRequestsStateEntity.setDescription(resultStatusDescription);
         vendorRequestRepository.save(vendorRequestsStateEntity);
-        ObjectMapper objectMapper = new ObjectMapper();
-        redisRepository.saveVendorRequest(vendorRequestsStateEntity);
     }
 
 }

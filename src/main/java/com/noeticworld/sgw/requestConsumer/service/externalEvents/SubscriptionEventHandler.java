@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import com.noeticworld.sgw.requestConsumer.entities.*;
 import com.noeticworld.sgw.requestConsumer.repository.*;
@@ -459,38 +458,86 @@ public class SubscriptionEventHandler implements RequestEventHandler {
     }
 
     private void createResponse(String desc, String resultStatus, String correlationId) {
-        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + correlationId + " | TRYING TO CREATE RESPONSE");
-        VendorRequestsStateEntity entity = null;
-        boolean isNull = true;
-        int i = 0;
-        if (entity == null) {
-            while (isNull) {
-                entity = redisRepository.findVendorRequestStatus(correlationId);
-                if(entity == null)
-                {
-                    entity = requestRepository.findByCorrelationid(correlationId);
-                }
-                System.out.println("ENTITY IS NULL TAKING TIME");
+        System.out.println("CORREALATIONID || " + correlationId);
+        try {
+            VendorRequestsStateEntity entity = requestRepository.findByCorrelationid(correlationId);
+            System.out.println("FindinRedis || " + entity.toString());
 
-                if (entity != null) {
-                    isNull = false;
-                }
-                i++;
-                if (i > 10) {
-                    isNull = false;
+            boolean isNull = true;
+            int i = 0;
+            if (entity == null) {
+                while (isNull) {
+                    System.out.println("FindinRedis || " + entity.toString());
+                    if (entity == null) {
+                        entity = requestRepository.findByCorrelationid(correlationId);
+                        System.out.println("FindinDB || " + entity.toString());
+                    }
+
+                    i++;
+                    log.error("entity is null trying to create response" + i);
+                    if (entity != null) {
+                        isNull = false;
+                    }
+                    if (i == 10) {
+                        isNull = false;
+                    }
                 }
             }
+            entity.setCdatetime(Timestamp.valueOf(LocalDateTime.now()));
+            entity.setFetched(false);
+            entity.setResultStatus(resultStatus);
+            entity.setDescription(desc);
+            requestRepository.save(entity);
+            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+        } catch (Exception ex) {
+            log.error("Error In Creating Response" + ex);
         }
-        entity.setCdatetime(Timestamp.valueOf(LocalDateTime.now()));
-        entity.setFetched(false);
-        entity.setResultStatus(resultStatus);
-        entity.setDescription(desc);
-        VendorRequestsStateEntity vre = requestRepository.save(entity);
-        ObjectMapper objectMapper = new ObjectMapper();
-        redisRepository.saveVendorRequest(entity);
-        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
-        log.info("ZONG CONSUMER SERVICE  | SUBSCIPTIONEVENTHANDLER CLASS | " + vre.getResultStatus() + " | REQUEST STATE UPDATED");
     }
+
+//    private void createResponse(String desc, String resultStatus, String correlationId) {
+//        System.out.println("CORREALATIONID || " + correlationId);
+//        try {
+//            VendorRequestsStateEntity entity = (VendorRequestsStateEntity) redisRepository.findVendorRequestStatus(correlationId);
+//            System.out.println("FindinRedis || " + entity.toString());
+//            if (entity == null) {
+//                entity = requestRepository.findByCorrelationid(correlationId);
+//                System.out.println("FindinDB || " + entity.toString());
+//            }
+//            boolean isNull = true;
+//            int i = 0;
+//            if (entity == null) {
+//                while (isNull) {
+//
+//                    entity = redisRepository.findVendorRequestStatus(correlationId);
+//                    System.out.println("FindinRedis || " + entity.toString());
+//                    if (entity == null) {
+//                        entity = requestRepository.findByCorrelationid(correlationId);
+//                        System.out.println("FindinDB || " + entity.toString());
+//                    }
+//
+//                    i++;
+//                    log.error("entity is null trying to create response" + i);
+//                    if (entity != null) {
+//                        isNull = false;
+//                    }
+//                    if (i == 10) {
+//                        isNull = false;
+//                    }
+//                }
+//            }
+//            entity.setCdatetime(Timestamp.valueOf(LocalDateTime.now()));
+//            entity.setFetched(false);
+//            entity.setResultStatus(resultStatus);
+//            entity.setDescription(desc);
+//            requestRepository.save(entity);
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            System.out.println("ABC");
+//            redisRepository.saveVendorRequest(entity);
+//            log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
+//        } catch (Exception ex) {
+//            log.error("Error In Creating Response" + ex);
+//        }
+//    }
 
     private void continueUserSubscriptionProcess(RequestProperties requestProperties, UsersEntity _user, VendorPlansEntity vendorPlansEntity) {
         try {

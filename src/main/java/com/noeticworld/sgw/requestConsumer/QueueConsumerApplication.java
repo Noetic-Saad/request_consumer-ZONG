@@ -4,6 +4,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 @EnableFeignClients(basePackages = "com.noeticworld.sgw.util")
 @SpringBootApplication
 @EnableRabbit
+@EnableCaching
 //@EnableBinding(ProducerConsumerBinding.class)
 public class QueueConsumerApplication {
 

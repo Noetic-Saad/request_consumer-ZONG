@@ -65,7 +65,7 @@ public class BillingService {
 //            fiegnResponse.setMsg("ALREADY SUBSCRIBED");
 //            return fiegnResponse;
 //        } else
-            if (user.getOperatorId() == 4 && isAlreadyChargedFor7Days(requestProperties.getMsisdn()) && latestUserStatus.getStatusId() != 2) {
+            if (user.getOperatorId() == 4 && isAlreadyChargedFor7Days(requestProperties.getMsisdn())) {
             log.info("BILLING SERVICE | CHARGING CLASS | ALREADY CHARGED FOR 7 DAYS | " + requestProperties.getMsisdn());
             fiegnResponse.setCode(110);
             fiegnResponse.setCorrelationId(requestProperties.getCorrelationId());
@@ -144,7 +144,7 @@ public class BillingService {
                                 "\n    \"shortcode\":\"" + chargeRequestProperties.getShortcode() + "\"\n}";
                     }
 
-                    com.mashape.unirest.http.Unirest.setTimeouts(120, 120);
+//                    com.mashape.unirest.http.Unirest.setTimeouts(120, 120);
                     com.mashape.unirest.http.HttpResponse<String> response1 = null;
                     ObjectMapper objectMapper = new ObjectMapper();
                     response1 = com.mashape.unirest.http.Unirest.post("https://dcbbilling.mmsdp.com/charge")

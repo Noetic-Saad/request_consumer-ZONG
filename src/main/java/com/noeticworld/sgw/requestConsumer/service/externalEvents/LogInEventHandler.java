@@ -1,6 +1,5 @@
 package com.noeticworld.sgw.requestConsumer.service.externalEvents;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noeticworld.sgw.requestConsumer.entities.*;
 import com.noeticworld.sgw.requestConsumer.repository.*;
 import com.noeticworld.sgw.requestConsumer.service.ConfigurationDataManagerService;
@@ -159,8 +158,7 @@ public class LogInEventHandler implements RequestEventHandler {
     private void createResponse(String desc, String resultStatus, String correlationId) {
         System.out.println("CORREALATIONID || " + correlationId);
         try {
-            VendorRequestsStateEntity entity = null;
-            entity = redisRepository.findVendorRequestStatus(correlationId);
+            VendorRequestsStateEntity entity = (VendorRequestsStateEntity) requestRepository.findByCorrelationid(correlationId);
             System.out.println("FindinRedis || " + entity.toString());
             if (entity == null) {
                 entity = requestRepository.findByCorrelationid(correlationId);
@@ -171,7 +169,7 @@ public class LogInEventHandler implements RequestEventHandler {
             if (entity == null) {
                 while (isNull) {
 
-                    entity = redisRepository.findVendorRequestStatus(correlationId);
+                    entity = requestRepository.findByCorrelationid(correlationId);
                     System.out.println("FindinRedis || " + entity.toString());
                     if (entity == null) {
                         entity = requestRepository.findByCorrelationid(correlationId);
@@ -193,8 +191,6 @@ public class LogInEventHandler implements RequestEventHandler {
             entity.setResultStatus(resultStatus);
             entity.setDescription(desc);
             requestRepository.save(entity);
-            ObjectMapper objectMapper = new ObjectMapper();
-            redisRepository.saveVendorRequest(entity);
             log.info("ZONG CONSUMER SERVICE  | LOGINEVENTHANDLER CLASS | " + entity.getResultStatus() + " | REQUEST STATUS SAVED IN REDIS");
         } catch (Exception ex) {
             log.error("Error In Creating Response" + ex);

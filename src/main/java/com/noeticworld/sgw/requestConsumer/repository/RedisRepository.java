@@ -2,9 +2,9 @@ package com.noeticworld.sgw.requestConsumer.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noeticworld.sgw.requestConsumer.entities.OtpRecordsEntity;
-import com.noeticworld.sgw.requestConsumer.entities.VendorRequestsStateEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -25,15 +25,16 @@ public class RedisRepository {
 
     Logger log = LoggerFactory.getLogger(RedisRepository.class);
 
+    @Autowired
     public RedisRepository(RedisTemplate redisTemplate){
         this.redisTemplate = redisTemplate;
         this.hashOperations = this.redisTemplate.opsForHash();
     }
 
-    public void saveVendorRequest(VendorRequestsStateEntity requestStatus){
-        hashOperations.put(VendorRequestEntityKEY, requestStatus.getCorrelationid(), requestStatus);
-        log.info("REDISREPOSITORY SAVEVENDORREQUEST || VENDOREEQUEST ", requestStatus.toString());
-    }
+//    public void saveVendorRequest(VendorRequestsStateEntity requestStatus){
+//        hashOperations.put(VendorRequestEntityKEY, requestStatus.getCorrelationid(), requestStatus);
+//        log.info("REDISREPOSITORY SAVEVENDORREQUEST || VENDOREEQUEST ", requestStatus.toString());
+//    }
 
     public void saveOtpRecord(String key,String entity){
         hashOperations.put(OTPEntityKEY, key, entity);
@@ -58,17 +59,11 @@ public class RedisRepository {
         return otprecordlist;
     }
 
-    public VendorRequestsStateEntity findVendorRequestStatus(String CorelationId){
-        log.info("REDISREPOSOTORY FINDVENDORREQUESTSTATUS || CORELATIONID " + CorelationId);
-        VendorRequestsStateEntity vendorRequestStatusEntity = null;
-        vendorRequestStatusEntity = (VendorRequestsStateEntity) hashOperations.get(VendorRequestEntityKEY, CorelationId);
-        log.info("REDISREPOSITORY FINDVENDORREQUESTSTATUS || VENDORREQUEST " + vendorRequestStatusEntity.toString());
-        if(vendorRequestStatusEntity == null)
-        {
-            return null;
-        }
-        return vendorRequestStatusEntity;
-
-    }
+//    public VendorRequestsStateEntity findVendorRequestStatus(String CorelationId){
+//        log.info("REDISREPOSOTORY FINDVENDORREQUESTSTATUS || CORELATIONID " + CorelationId);
+//
+//        return (VendorRequestsStateEntity)  hashOperations.get(VendorRequestEntityKEY, CorelationId);
+//
+//    }
 
 }

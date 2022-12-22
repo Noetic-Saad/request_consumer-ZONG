@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-
 @Entity
 @Table(name = "vendor_requests_state", schema = "public", catalog = "sgw")
 public class VendorRequestsStateEntity implements Serializable {
@@ -89,12 +88,13 @@ public class VendorRequestsStateEntity implements Serializable {
                 Objects.equals(resultStatus, that.resultStatus) &&
                 Objects.equals(isFetched, that.isFetched) &&
                 Objects.equals(cdatetime, that.cdatetime) &&
-                Objects.equals(description, that.description);
+                Objects.equals(description, that.description)&&
+                Objects.equals(vendorPlanId,that.vendorPlanId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, correlationid, resultStatus, isFetched, cdatetime, description);
+        return Objects.hash(id, correlationid, resultStatus, isFetched, cdatetime, description,vendorPlanId);
     }
 
     @Basic
@@ -107,4 +107,3 @@ public class VendorRequestsStateEntity implements Serializable {
         this.vendorPlanId = vendorPlanId;
     }
 }
-
